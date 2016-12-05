@@ -1,11 +1,6 @@
 #! -*- coding: utf-8 -*-
 
 """
-Web Scraper Project
-
-Scrape data from a regularly updated website livingsocial.com and
-save to a database (postgres).
-
 Scrapy pipeline part - stores scraped items in the database.
 """
 import sys
