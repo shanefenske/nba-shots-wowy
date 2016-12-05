@@ -1,0 +1,12 @@
+#box-score-table td, #box-score-table th  {
+    padding: 1px;
+}
+
+#rounded table a {
+    width: 100%
+}
+
+#rounded select {
+    width: 100%;
+    height: 2.2em;
+}

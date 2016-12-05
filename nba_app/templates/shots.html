@@ -1,0 +1,191 @@
+{% extends 'layout.html' %}
+{% from 'macros.html' import icon %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-3">
+            <div id="rounded">
+            <table id="category-table" class="table" style="table-layout: fixed">
+            <h5>{{game.game_date.strftime('%A, %B %d, %Y')}} &nbsp;&nbsp;&nbsp;&nbsp; <a href="{{ url_for('view_game', game_id=game.game_id) }}">Boxscore</a></h5>
+            {% if team_stats[0].team_id ==  game.visitor_team_id %}
+                <h4 style={% if curr_team == game.visitor_team_id %} "text-decoration: underline;" {%else%} "opacity: .5;" {%endif%}>
+                {{game.visitor_team.name}} 
+                <img src="http://i.cdn.turner.com/nba/nba/assets/logos/teams/secondary/web/{{ game.visitor_team.abbreviation }}.svg" height="50" alt="">
+                {{team_stats[0].pts}}
+                </h4>
+                <h4 style={% if curr_team == game.home_team_id %} "text-decoration: underline;" {%else%} "opacity: .5;" {%endif%}>
+                {{game.home_team.name}} 
+                <img src="http://i.cdn.turner.com/nba/nba/assets/logos/teams/secondary/web/{{ game.home_team.abbreviation }}.svg" height="50" alt="">
+                {{team_stats[1].pts}}
+                </h4>
+            {%else%}
+                <h4>
+                <h4 style={% if curr_team == game.visitor_team_id %} "text-decoration: underline;" {%else%} "opacity: .5;" {%endif%}>
+                    {{game.visitor_team.name}} 
+                    <img src="http://i.cdn.turner.com/nba/nba/assets/logos/teams/secondary/web/{{ game.visitor_team.abbreviation }}.svg" height="50" alt="">
+                    {{team_stats[1].pts}}
+                    </h4>
+                    <h4 style={% if curr_team == game.home_team_id %} "text-decoration: underline;" {%else%} "opacity: .5;" {%endif%}>
+                    {{game.home_team.name}} 
+                    <img src="http://i.cdn.turner.com/nba/nba/assets/logos/teams/secondary/web/{{ game.home_team.abbreviation }}.svg" height="50" alt="">
+                    {{team_stats[0].pts}}
+                    </h4>
+                </h4>               
+            {%endif%}
+                
+
+               {#%- for category in categories %#}
+                 {#   <tr>
+                        <td>
+                            <a href="{{ url_for('list_games', name=category.name) }}">{{ category.name }}</a>
+                        </td>
+                        <td>
+                            <a  class="btn btn-sm btn-default" href="{{ url_for('edit_category', category_id=category.id) }}">{{ icon('edit') }} Edit</a>
+                        </td>
+                        <td>
+                            <form id="catdel-{{ category.name }}" action="{{ url_for('delete_category', category_id=category.id) }}" method="post">
+                                <a class="btn btn-sm btn-danger" onclick="$('#catdel-{{ category.name }}').submit();">{{ icon('trash') }} Delete</a>
+                            </form>
+                        </td>
+                    </tr>#}
+                {#%- endfor %#}
+                    
+                    <!-- ALTERNATE TEAMS -->
+                    <tr>
+                    {%if curr_team == game.home_team_id %}
+                        {% set next_team = game.visitor_team_id %}
+                    {%else%}
+                        {% set next_team = game.home_team_id %}
+                    {%endif%}
+                        <td>
+                            <a  class="btn btn-sm btn-default" 
+                            href="{{ url_for('view_game_shots', game_id=game.game_id, team_id=  next_team, player_id =0, matchup_id=0) }}"> Change Teams</a>
+                        </td>
+                    </tr>
+                   
+                    <tr> <td>
+                    <select id="players" onchange="location = this.value;">
+                        <option value="{{ url_for('view_game_shots', game_id=game.game_id, team_id=  curr_team, player_id = 0, matchup_id=curr_matchup) }}">All Players</option>
+                        
+                        {%- for player in curr_team_roster %}
+                            <option {% if curr_player == player.player_id %} selected {%endif%}
+                            value="{{ url_for('view_game_shots', game_id=game.game_id, team_id=  curr_team, player_id = player.player_id, matchup_id=0) }}">
+                            {{player.player_stats.player_info.first_name}} {{player.player_stats.player_info.last_name}}
+                            </option>
+                        {%- endfor %}
+            
+                    </select>
+                    </td>   
+                    </tr> 
+                    <tr> 
+                    <td>
+                    <select id="off_matchups" onchange="location = this.value;">
+                        <option value = "{{ url_for('view_game_shots', game_id=game.game_id, team_id=  curr_team, player_id = curr_player, matchup_id=0) }}">
+                          All Offensive Lineups 
+                        </option>
+                        {%- for match in off_matchups %}
+                            <option 
+                            {% if curr_matchup == match['id'] %} selected {%endif%}
+                            value="{{ url_for('view_game_shots', game_id=game.game_id, team_id=  curr_team, player_id = curr_player, matchup_id=match['id']) }}">
+                            {{match['1_name']}}, {{match['2_name']}}. {{match['3_name']}}, {{match['4_name']}}, {{match['5_name']}}
+                            </option>
+                        {%- endfor %}
+            
+                    </select>
+                    </td>   
+                    </tr> 
+
+<!--                     <tr> 
+                    <td>
+                    <select id="def_matchups" onchange="location = this.value;">
+                        
+                        {%- for match in def_matchups %}
+                            <option >
+                            
+                            {{match}} 
+                            </option>
+                        {%- endfor %}
+            
+                    </select>
+                    </td>   
+                    </tr>  -->                                              
+            </table>
+        </div>
+        </div>
+        <div class="col-md-9">
+            {% if shots|count > 0 %}
+                <div  class="col-md-12 col-lg-8 main">
+                    <div id="chart"> </div> 
+                </div>
+            
+            {% else %}
+            <h3 class=lead>No Shots Found</h3>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        // GLOBAL VARIABLES
+        var shots = {{shots|safe}}
+        var max = { x: 780, y: 650};
+        var color = ['#FF4136','#2ECC40']
+
+        var x = d3.time.scale()
+        .range([10, 280])
+        var y = d3.scale.linear()
+        .range([180, 10])
+
+        //found correct range by hand..varies with svg
+        var xScale = d3.scale.linear()
+            .domain([-250, 250])
+            .range([42, 738]);
+        var yScale = d3.scale.linear()
+            .domain([-1,0, -150])
+            .range([590,589, 371]);
+        
+        
+        var xValue = function(d) { 
+            console.log(d);
+            return xScale(-d['x']);}
+        var yValue = function(d) { 
+            return yScale(-d['y']);}    
+            
+            // TODO SHOTS OVER HALF COURT NEED TO BE AT TOP OF SVG, 
+            // NEED TO ADD DISTANCE TO SCRAPE AND RESCRAPE
+            // return (d['distance'] > 45 ? 0 : yScale(-d['y_loc']));}                    
+
+        // Create svg
+        var svg = d3.select("#chart").append("svg:svg")
+            .attr("width", max.x)
+            .attr("height", max.y)
+            .attr("id", "shotchart")
+
+        // Add court background
+        var courtUrl = "../../../../../static/court.jpg";
+            svg.append("defs")
+            .append("pattern")
+            .attr("id", "bg")
+            .attr('patternUnits', 'userSpaceOnUse')
+            .attr("width", max.x)
+            .attr("height", max.y)
+            .append("image")
+            .attr("xlink:href", courtUrl)
+            .attr("width", max.x)
+            .attr("height", max.y);
+            svg.append("rect")
+            .attr("x", "0")
+            .attr("y", "0")
+            .attr("width", max.x)
+            .attr("height", max.y)
+            .attr("fill", "url(#bg)");
+
+        d3.selectAll('circle').remove();
+        var circles = svg.selectAll("circle").data(shots)
+            circles.enter()
+            .append("svg:circle")
+            .attr("r", 4)
+            .attr("cx", function(d) { return  xValue(d);})
+            .attr("cy", function(d) { return yValue(d);})
+            .style("fill", function(d) { return color[d['shot_made_flag']];})
+
+
+    </script>
+{% endblock %}

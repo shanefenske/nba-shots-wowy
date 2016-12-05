@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="row col-md-4 col-sm-12 col-md-offset-4" style="text-align:center;">
+    <h3>{{ game.game_date.strftime('%A, %B %d, %Y') }}</h3> 
+    <a class="btn btn-xs btn-default" style="height:3.6em; padding: 1em; margin-top: 0.28em;" href="{{ url_for('view_game_shots', game_id=game.game_id, team_id=game.visitor_team_id, player_id=0, matchup_id=0) }}" >View Game Shots</a>
+    </div>
+
+    <div class="row">
+    {% if team_stats[0].team_id ==  game.visitor_team_id %}
+        <div style="text-align:right;"class="col-md-4 col-sm-12 col-md-offset-2">
+            <h1>{{game.visitor_team.name}} <br>
+            {{team_stats[0].pts}}
+            <img src="http://i.cdn.turner.com/nba/nba/assets/logos/teams/secondary/web/{{ game.visitor_team.abbreviation }}.svg" height="70" alt="">
+            </h1>
+        </div>
+
+        <div class="col-md-4 col-sm-12">
+            <h1>
+            {{game.home_team.name}}  <br>
+            <img src="http://i.cdn.turner.com/nba/nba/assets/logos/teams/secondary/web/{{ game.home_team.abbreviation }}.svg" height="70" alt="">
+             {{team_stats[1].pts}}
+             </h1>
+        </div>  
+    {% else %} 
+        <div style="text-align:right;" class="col-md-4 col-sm-12 col-md-offset-2">
+            <h1>{{game.visitor_team.name}}  <br>
+            {{team_stats[1].pts}}
+            <img src="http://i.cdn.turner.com/nba/nba/assets/logos/teams/secondary/web/{{ game.visitor_team.abbreviation }}.svg" height="70" alt="">
+            </h1>
+        </div>
+        <div class="col-md-4 col-sm-12">
+            <h1>
+            {{game.home_team.name}} <br>
+            <img src="http://i.cdn.turner.com/nba/nba/assets/logos/teams/secondary/web/{{ game.home_team.abbreviation }}.svg" height="70" alt="">
+             {{team_stats[0].pts}}
+             </h1>
+        </div>      
+    {% endif %} 
+    </div>       
+
+   <h3><img src="http://i.cdn.turner.com/nba/nba/assets/logos/teams/secondary/web/{{ game.home_team.abbreviation }}.svg" height="40" alt="">{{ game.home_team.name }}</h3>
+    <table id="box-score-table" class="table">
+       <tr>
+            <th>NAME</th>
+            <th>MIN</th>
+            <th>FG</th>
+            <th>3PT</th>
+            <th>FT</th>
+            <th>OREB</th>
+            <th>DREB</th>
+            <th>REB</th>            
+            <th>AST</th>
+            <th>STL</th>
+            <th>BLK</th>
+            <th>TO</th>
+            <th>PF</th>
+            <th>+/-</th>
+            <th>PTS</th>
+        </tr>
+        
+        {%- for player_row in rosters|sort(attribute='player_stats.seconds',reverse=True)%}
+            {% if player_row.team_id ==  game.home_team_id %}
+            <tr>
+                <td>
+                    {{player_row.player_stats.player_info.first_name[:1]}}. {{player_row.player_stats.player_info.last_name}}
+                </td>
+                {% if player_row.player_stats.seconds !=  0 %}
+                    <td>{{ player_row.player_stats.minutes}} </td>
+                    <td>{{ player_row.player_stats.fgm}}-{{player_row.player_stats.fga}} </td>
+                    <td>{{ player_row.player_stats.fg3m}}-{{player_row.player_stats.fg3a}} </td>
+                    <td>{{ player_row.player_stats.ftm}}-{{player_row.player_stats.fta}} </td>
+                    <td>{{ player_row.player_stats.oreb}} </td>
+                    <td>{{ player_row.player_stats.dreb}} </td>
+                    <td>{{ player_row.player_stats.reb}} </td>
+                    <td>{{ player_row.player_stats.ast}} </td>
+                    <td>{{ player_row.player_stats.stl}} </td>
+                    <td>{{ player_row.player_stats.blk}} </td>
+                    <td>{{ player_row.player_stats.to}} </td>
+                    <td>{{ player_row.player_stats.pf}} </td>
+                    <td>{{ player_row.player_stats.plus_minus}} </td>
+                    <td>{{ player_row.player_stats.pts}} </td>
+                {% else %} 
+                        <td>0:00</td>          
+                {% endif %}
+            </tr>            
+            {% endif %}
+        {%- endfor %}
+
+    </table>
+
+   <h3><img src="http://i.cdn.turner.com/nba/nba/assets/logos/teams/secondary/web/{{ game.visitor_team.abbreviation }}.svg" height="40" alt="">{{ game.visitor_team.name }}</h3>
+    <table id="box-score-table" class="table">
+       <tr>
+            <th>NAME</th>
+            <th>MIN</th>
+            <th>FG</th>
+            <th>3PT</th>
+            <th>FT</th>
+            <th>OREB</th>
+            <th>DREB</th>
+            <th>REB</th>            
+            <th>AST</th>
+            <th>STL</th>
+            <th>BLK</th>
+            <th>TO</th>
+            <th>PF</th>
+            <th>+/-</th>
+            <th>PTS</th>
+        </tr>
+        
+        {%- for player_row in rosters|sort(attribute='player_stats.seconds',reverse=True)%}
+            {% if player_row.team_id ==  game.visitor_team_id %}
+            <tr>
+                <td>
+                    {{player_row.player_stats.player_info.first_name[:1]}}. {{player_row.player_stats.player_info.last_name}}
+                </td>
+                {% if player_row.player_stats.seconds !=  0 %}
+                    <td>{{ player_row.player_stats.minutes}} </td>
+                    <td>{{ player_row.player_stats.fgm}}-{{player_row.player_stats.fga}} </td>
+                    <td>{{ player_row.player_stats.fg3m}}-{{player_row.player_stats.fg3a}} </td>
+                    <td>{{ player_row.player_stats.ftm}}-{{player_row.player_stats.fta}} </td>
+                    <td>{{ player_row.player_stats.oreb}} </td>
+                    <td>{{ player_row.player_stats.dreb}} </td>
+                    <td>{{ player_row.player_stats.reb}} </td>
+                    <td>{{ player_row.player_stats.ast}} </td>
+                    <td>{{ player_row.player_stats.stl}} </td>
+                    <td>{{ player_row.player_stats.blk}} </td>
+                    <td>{{ player_row.player_stats.to}} </td>
+                    <td>{{ player_row.player_stats.pf}} </td>
+                    <td>{{ player_row.player_stats.plus_minus}} </td>
+                    <td>{{ player_row.player_stats.pts}} </td>
+                {% else %} 
+                        <td>0:00</td>          
+                {% endif %}
+            </tr>            
+            {% endif %}
+        {%- endfor %}
+
+    </table>    
+{% endblock %}
